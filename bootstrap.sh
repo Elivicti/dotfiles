@@ -1,7 +1,7 @@
 #!/bin/bash
 
 script=$(cd `dirname $0`; pwd)
-distro=$(cat /etc/issue | head -n1 | awk '{print $1}')
+distro=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 username=$(whoami)
 eval HOME="~"
 
@@ -121,7 +121,7 @@ theme="ubuntu-bash"
 rc_env="ubuntu"
 
 # distro specific configs
-if [ "$distro"x == "Arch"x ]; then
+if [ "$distro"x == "arch"x ]; then
 	theme="arch-zsh"
 	rc_env="arch"
 fi
