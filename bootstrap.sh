@@ -86,6 +86,33 @@ function link_rc() {
 	ln -s "$userenv" "$userenv_target"
 }
 
+function link_ssh_keys() {
+	echo "Linking ssh keys:"
+
+	if [ ! -d "$HOME/.ssh/" ]; then
+		mkdir -p "$HOME/.ssh"
+	fi
+
+	pvt_key=".ssh/id_rsa"
+	pub_key=".ssh/id_rsa.pub"
+
+	echo "  $pub_key -> $HOME/$pub_key"
+	backup_old "$HOME/$pub_key"
+	ln -s "$script/$pub_key" "$HOME/$pub_key"
+
+	output=$(bash "$script/ssh_key.sh" -d)
+	result=$?
+	if [ $result -ne 0 ]; then
+		echo "  $output" >&2
+		echo "  Skipped linking private key" >&2
+		return $result
+	fi
+
+	echo -e "\r  $pvt_key -> $HOME/$pvt_key"
+	backup_old "$HOME/$pvt_key"
+	ln -s "$script/$pvt_key" "$HOME/$pvt_key"
+}
+
 echo "Setting up configurations for ${username}"
 echo "Distro: ${distro}"
 
@@ -102,3 +129,4 @@ fi
 link_rc    "$rc_env"
 link_theme "$theme"
 link_configs
+link_ssh_keys
