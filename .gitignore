@@ -1,2 +1,5 @@
 .ssh/id_rsa
 .ssh/id_rsa.pvt
+
+*.psm1
+*.bak

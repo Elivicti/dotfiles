@@ -1,0 +1,54 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+format = """
+[╭─](fg:#0077C2)$shell$username\
+  [](bg:#666666 fg:#0077C2)$directory\
+  [](bg:#FFFB36 fg:#666666)$git_branch\
+  [](           fg:#FFFB35)
+[╰─](fg:#21C7C7)[❯ ](#E0F8FF)\
+"""
+
+# Disable the blank line at the start of the prompt
+# add_newline = false
+
+[username]
+show_always = true
+style_user = "bg:#9A348E"
+style_root = "bg:#9A348E"
+format = "[$user ]($style)"
+disabled = true
+
+[shell]
+disabled = false
+style = "bg:#0077C2 fg:#FFFFFF"
+format = "[ ](bg:#0077C2 fg:#26C6DA)[PS ]($style)"
+
+[directory]
+style = "bg:#666666 fg:#F4F4F4"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+# Here is how you can shorten some long paths by text replacement
+# similar to mapped_locations in Oh My Posh:
+# [directory.substitutions]
+# "Documents" = "󰈙 "
+# "Downloads" = " "
+# "Music" = " "
+# "Pictures" = " "
+
+[git_branch]
+symbol = ""
+style = "bg:#FFFB38 fg:#011627"
+format = "[ $symbol $branch ]($style)"
+
+
+[git_status]
+style = "bg:#FFFB38 fg:#011627"
+format = "[$all_status$ahead_behind ]($style)"
+
+[time]
+disabled = true
+time_format = "%R" # Hour:Minute Format
+style = "bg:#33658A"
+format = "[ $time ]($style)"
