@@ -67,15 +67,12 @@ function Set-Light-Theme {
 }
 
 function Set-MSVC-Env {
-	$devshell = "$env:VS_ROOT\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+	$devshell = "$env:VS_ROOT\Common7\Tools\Launch-VsDevShell.ps1"
 	if (-not $(Test-Path -PathType Leaf $devshell)) {
 		Write-Error "$devshell does not exist"
 		return
 	}
-	& {
-		Import-Module $devshell
-		Enter-VsDevShell f1e251a1 -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -host_arch=x64"
-	}
+	& $devshell
 	$utf8 = [System.Text.Encoding]::GetEncoding("utf-8")
 	[console]::InputEncoding  = $utf8
 	[Console]::OutputEncoding = $utf8
