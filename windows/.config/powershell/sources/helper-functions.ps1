@@ -72,7 +72,7 @@ function Set-MSVC-Env {
 		Write-Error "$devshell does not exist"
 		return
 	}
-	& $devshell
+	& $devshell -Arch amd64 -HostArch amd64
 	$utf8 = [System.Text.Encoding]::GetEncoding("utf-8")
 	[console]::InputEncoding  = $utf8
 	[Console]::OutputEncoding = $utf8
