@@ -1,8 +1,12 @@
 # A light blue style prompt with username, hostname, full path, return status, git branch, git dirty status, git remote status
 
-local host_color="cyan"
+local grey="%{$FG[250]%}"
+local blue="%{$FG[033]%}"
+local cyan="%{$FG[081]%}"
+
+local host_color="${cyan}"
 if [ -n "$SSH_CLIENT" ]; then
-  local host_color="red"
+	local host_color="%{$fg[red]%}"
 fi
 
 # special symbols
@@ -12,13 +16,13 @@ local symbol_git_behind_remote="%{↓%1G%}"
 local symbol_git_ahead_remote="%{↑%1G%}"
 local symbol_git_diverged_remote="%{↕%1G%}"
 
-local username="%{$fg_bold[${host_color}]%}%n"
-local hostname="%{$fg_bold[${host_color}]%}%m"
-local use_host="%{$fg_bold[grey]%}[%{$reset_color%}${username}%{$fg_bold[grey]%}@${hostname}%{$reset_color%}%{$fg_bold[grey]%}]%{$reset_color%}"
-local working_dir="%{$fg_bold[blue]%}%10c%{$reset_color%}"
+local username="${host_color}%n"
+local hostname="${host_color}%m"
+local userhost="${grey}[${username}${grey}@${hostname}${grey}]%{$reset_color%}"
+local working_dir="${blue}%10c%{$reset_color%}"
 
 # local user_symbol="${return_status}%(!.#.›)%{$reset_color%}"
-local return_status="%(?.%{$fg_bold[cyan]%}.%{$fg[red]%})"
+local return_status="%(?.%B${cyan}.%{$fg_bold[red]%})"
 local user_symbol='${return_status}%(!.#.${symbol_prompt})%{$reset_color%}'
 
 local git_info='$(git_prompt_info)$(git_remote_status)'
@@ -33,5 +37,5 @@ ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg_bold[magenta]%}${symbol_git_diverged
 
 ZSH_THEME_TERM_TAB_TITLE_IDLE="%n@%m:%~"
 
-PROMPT="${use_host} ${working_dir} ${git_info}${user_symbol} "
+PROMPT="${userhost} ${working_dir} ${git_info}${user_symbol} "
 # RPROMPT=""
