@@ -48,14 +48,16 @@ if [ "$mode" == "-e" ]; then
 else
 	output=$(openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
 		-in  "$private_key.enc" \
-		-out "$private_key"     \
+		-out "$private_key.tmp" \
 		-pass pass:"$password" 2>&1)
 	result=$?
 
 	if [ $result -ne 0 ]; then
+		rm "$private_key.tmp"
 		echo "Decryption failed: $output" >&2
 		exit $result
 	else
+		mv "$private_key.tmp" "$private_key"
 		chmod 600 "$private_key"
 		exit 0
 	fi
