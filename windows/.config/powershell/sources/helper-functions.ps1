@@ -66,16 +66,39 @@ function Set-Light-Theme {
 
 }
 
+function Set-CodePage {
+	[CmdletBinding()]
+	param (
+		[Parameter(
+			Position=0
+		)]
+		[string] $Encoding
+	)
+	$codepage = [System.Text.Encoding]::GetEncoding($Encoding);
+	$name = $codepage.EncodingName
+
+	[Console]::InputEncoding  = $codepage
+	[Console]::OutputEncoding = $codepage
+
+	Write-Output "Set I/O encoding to $name" $codepage
+}
+
 function Set-MSVC-Env {
+	[CmdletBinding()]
+	param (
+		[Parameter()]
+		[switch] $Utf8 = $false
+	)
+
 	$devshell = "$env:VS_ROOT\Common7\Tools\Launch-VsDevShell.ps1"
 	if (-not $(Test-Path -PathType Leaf $devshell)) {
 		Write-Error "$devshell does not exist"
 		return
 	}
 	& $devshell -Arch amd64 -HostArch amd64
-	$utf8 = [System.Text.Encoding]::GetEncoding("utf-8")
-	[console]::InputEncoding  = $utf8
-	[Console]::OutputEncoding = $utf8
-	Write-Output "Set I/O encoding to UTF-8" $utf8
+
+	if ($Utf8) {
+		Set-CodePage "utf-8"
+	}
 }
 
