@@ -2,14 +2,19 @@
 
 format = """
 [╭─](fg:#0077C2)$shell$username\
-  [](bg:#666666 fg:#0077C2)$directory\
-  [](bg:#FFFB36 fg:#666666)$git_branch\
-  [](           fg:#FFFB35)
-[╰─](fg:#21C7C7)[❯ ](#E0F8FF)\
+  [](fg:#0077C2 bg:#666666)$directory\
+  [](fg:#666666)\
+  ([\b](fg:#666666 bg:#FFFB36)$git_branch\
+   [](fg:#FFFB35))
+[╰─](fg:#21C7C7)$character\
 """
 
 # Disable the blank line at the start of the prompt
 # add_newline = false
+
+[character]
+success_symbol = "[❯](#E0F8FF)"
+error_symbol   = "[❯](#EF5350)"
 
 [username]
 show_always = true
@@ -26,7 +31,7 @@ format = "[ ](bg:#0077C2 fg:#26C6DA)[PS ]($style)"
 [directory]
 style = "bg:#666666 fg:#F4F4F4"
 format = "[ $path ]($style)"
-truncation_length = 3
+truncation_length = 10
 truncation_symbol = "…/"
 
 # Here is how you can shorten some long paths by text replacement
@@ -46,6 +51,7 @@ format = "[ $symbol $branch ]($style)"
 [git_status]
 style = "bg:#FFFB38 fg:#011627"
 format = "[$all_status$ahead_behind ]($style)"
+disabled = true
 
 [time]
 disabled = true
