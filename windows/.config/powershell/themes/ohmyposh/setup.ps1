@@ -55,7 +55,7 @@ function Update-Posh-Cache {
 	Invoke-Expression $module_cmd | Out-File $POSH_MODULE_CACHE
 }
 
-if (Test-Path -PathType Leaf $POSH_MODULE_CACHE) {
+if (-not $(Test-Path -PathType Leaf $POSH_MODULE_CACHE)) {
 	Update-Posh-Cache $MY_POSH_THEME
 }
 
