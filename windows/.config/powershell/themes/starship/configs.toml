@@ -10,7 +10,7 @@ format = """
 """
 
 # Disable the blank line at the start of the prompt
-# add_newline = false
+add_newline = false
 
 [character]
 success_symbol = "[❯](#E0F8FF)"
@@ -31,6 +31,7 @@ format = "[ ](bg:#0077C2 fg:#26C6DA)[PS ]($style)"
 [directory]
 style = "bg:#666666 fg:#F4F4F4"
 format = "[ $path ]($style)"
+truncate_to_repo = false
 truncation_length = 10
 truncation_symbol = "…/"
 
