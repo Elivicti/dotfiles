@@ -1,0 +1,36 @@
+patch:
+  "style/inline_preedit": false
+  "style/label_format": "%s."
+  "style/layout":
+    border_width: 2
+    corner_radius: 2
+    round_corner: 0
+    margin_x: 12          # 主体元素和候选框的左右边距；为负值时，不显示候选框
+    margin_y: 10          # 主体元素的上下边距；为负值时，不显示候选框
+    hilite_spacing: 6     # 候选项和相应标签的间距
+    hilite_padding: 6     # 高亮区域和内部文字的间距，影响高亮区域大小
+    hilite_padding_x: 2   # 高亮区域和内部文字的左右间距，如无特殊指定则依 hilite_padding 设置
+    hilite_padding_y: 2   # 高亮区域和内部文字的上下间距，如无特殊指定则依 hilite_padding 设置
+    spacing: 4            # inline_preedit 为否时，编码区域和候选区域的间距
+    candidate_spacing: 30 # 候选项之间的间距
+
+  "style/color_scheme": sougou_mock
+  preset_color_schemes:
+    sougou_mock:
+      # description: 仿搜狗：白底蓝字，红色高亮。
+      name: "仿搜狗／SouGou Mock"
+      author: "None"
+      # 内选区域
+      text_color: 0xff8000         # 文字
+      hilited_text_color: 0xff8000 # 编码
+      hilited_back_color: 0xffffff # 背景
+
+      # 背景设置
+      back_color: 0xffffff    # 背景
+      border_color: 0xc6c6c6  # 边框
+
+      # 激活候选项
+      label_color: 0xff8000   # 序号
+      hilited_candidate_text_color: 0x0000ff # 文字
+      hilited_candidate_back_color: 0xffffff # 背景
+      hilited_comment_text_color: 0x0000ff
