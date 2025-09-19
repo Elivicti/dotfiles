@@ -89,28 +89,28 @@ function link_rc() {
 function link_ssh_keys() {
 	echo "Linking ssh keys:"
 
-	if [ ! -d "$HOME/.ssh/" ]; then
-		mkdir -p "$HOME/.ssh"
-	fi
-
 	pvt_key=".ssh/id_rsa"
 	pub_key=".ssh/id_rsa.pub"
-
-	echo "  $pub_key -> $HOME/$pub_key"
-	backup_old "$HOME/$pub_key"
-	ln -s "$script/$pub_key" "$HOME/$pub_key"
 
 	output=$(bash "$script/ssh_key.sh" -d)
 	result=$?
 	if [ $result -ne 0 ]; then
 		echo "  $output" >&2
-		echo "  Skipped linking private key" >&2
+		echo "  Skipped linking ssh keys" >&2
 		return $result
+	fi
+
+	if [ ! -d "$HOME/.ssh/" ]; then
+		mkdir -p "$HOME/.ssh"
 	fi
 
 	echo -e "\r  $pvt_key -> $HOME/$pvt_key"
 	backup_old "$HOME/$pvt_key"
 	ln -s "$script/$pvt_key" "$HOME/$pvt_key"
+
+	echo "  $pub_key -> $HOME/$pub_key"
+	backup_old "$HOME/$pub_key"
+	ln -s "$script/$pub_key" "$HOME/$pub_key"
 }
 
 echo "Setting up configurations for ${username}"
