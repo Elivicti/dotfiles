@@ -73,7 +73,7 @@ function link_rc() {
 
 	echo "  .zshrc -> $zshrc_target"
 	ln -s "$script/.zshrc" "$zshrc_target"
-	
+
 	userenv="$script/user-env/$1.sh"
 	if [ ! -f "$userenv" ]; then
 		echo "  User-env: \"$userenv\" is not a file, skipping" >&2
@@ -83,7 +83,7 @@ function link_rc() {
 	backup_old "$userenv_target"
 
 	echo "  $1.sh -> $userenv_target"
-	ln -s "$userenv" "$userenv_target"
+	cp "$userenv" "$userenv_target"
 }
 
 function link_ssh_keys() {
