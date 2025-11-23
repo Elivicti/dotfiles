@@ -80,8 +80,8 @@ source $ZSH/oh-my-zsh.sh
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # Set language environment
-# export LANG=en_US.UTF-8
-export LANG=zh_CN.UTF-8
+export LANG=en_US.UTF-8
+# export LANG=zh_CN.UTF-8
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
