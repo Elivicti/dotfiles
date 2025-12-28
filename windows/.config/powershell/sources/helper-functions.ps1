@@ -102,3 +102,33 @@ function Set-MSVC-Env {
 	}
 }
 
+function Make-Hidden {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory=$true, ValueFromRemainingArguments=$true)]
+		[string[]] $Paths
+	)
+
+	foreach ($path in $Paths) {
+		$item = Get-Item "$path" -ErrorAction Stop
+		$attr = $item.Attributes -bor [System.IO.FileAttributes]::System -bor [System.IO.FileAttributes]::Hidden
+		$item.Attributes = $attr
+
+		Write-Output "$path"
+	}
+}
+function Make-Shown {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory=$true, ValueFromRemainingArguments=$true)]
+		[string[]] $Paths
+	)
+
+	foreach ($path in $Paths) {
+		$item = Get-Item "$path" -ErrorAction Stop
+		$attr = [System.IO.FileAttributes]::System -bor [System.IO.FileAttributes]::Hidden
+		$item.Attributes = $item.Attributes -band (-bnot $attr)
+
+		Write-Output "$path"
+	}
+}
