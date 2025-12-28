@@ -11,5 +11,5 @@ $NVIM_DATA = "~\AppData\Local\nvim-data"
 
 # Note: switch to starship at somepoint
 # starship currently lacks support for conditional prompt parts
-$theme_manager = "ohmyposh"
+$theme_manager = "starship"
 Import-Module "$PSScriptRoot\themes\$theme_manager\setup.ps1"
