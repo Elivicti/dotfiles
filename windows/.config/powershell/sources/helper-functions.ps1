@@ -95,7 +95,7 @@ function Set-MSVC-Env {
 		Write-Error "$devshell does not exist"
 		return
 	}
-	& $devshell -Arch amd64 -HostArch amd64
+	& $devshell -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
 
 	if ($Utf8) {
 		Set-CodePage "utf-8"
