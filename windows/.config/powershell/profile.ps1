@@ -8,6 +8,7 @@ Set-PSReadLineKeyHandler -Key "Ctrl+d" -Function DeleteCharOrExit
 
 $NVIM      = "~\AppData\Local\nvim"
 $NVIM_DATA = "~\AppData\Local\nvim-data"
+$env:NVIM_USING_BIG_ICON_FONT = "1"
 
 # Note: switch to starship at somepoint
 # starship currently lacks support for conditional prompt parts
