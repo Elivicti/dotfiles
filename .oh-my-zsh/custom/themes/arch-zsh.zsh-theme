@@ -11,6 +11,7 @@ fi
 
 # special symbols
 local symbol_prompt="%{›%1G%}"
+local symbol_prompt_nl="%{»%1G%}"
 local symbol_git_dirty="%{⚡%2G%}"
 local symbol_git_behind_remote="%{↓%1G%}"
 local symbol_git_ahead_remote="%{↑%1G%}"
@@ -21,9 +22,9 @@ local hostname="${host_color}%m"
 local userhost="${grey}[${username}${grey}@${hostname}${grey}]%{$reset_color%}"
 local working_dir="${blue}%10c%{$reset_color%}"
 
-# local user_symbol="${return_status}%(!.#.›)%{$reset_color%}"
 local return_status="%(?.%B${cyan}.%{$fg_bold[red]%})"
 local user_symbol='${return_status}%(!.#.${symbol_prompt})%{$reset_color%}'
+local user_symbol_nl='${return_status}%(!.#.${symbol_prompt_nl})%{$reset_color%}'
 
 local git_info='$(git_prompt_info)$(git_remote_status)'
 
@@ -37,5 +38,17 @@ ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg_bold[magenta]%}${symbol_git_diverged
 
 ZSH_THEME_TERM_TAB_TITLE_IDLE="%n@%m:%~"
 
-PROMPT="${userhost} ${working_dir} ${git_info}${user_symbol} "
-# RPROMPT=""
+function set_prompt() {
+    local path_length=${#${(%):-%~}}
+
+
+    if (( path_length > ${PROMPT_PATH_LIMIT:-60} )); then
+        PROMPT="${userhost} ${working_dir} ${git_info}
+${user_symbol_nl} "
+    else
+        PROMPT="${userhost} ${working_dir} ${git_info}${user_symbol} "
+    fi
+}
+
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd set_prompt
