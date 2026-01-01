@@ -26,8 +26,6 @@ local return_status="%(?.%B${cyan}.%{$fg_bold[red]%})"
 local user_symbol='${return_status}%(!.#.${symbol_prompt})%{$reset_color%}'
 local user_symbol_nl='${return_status}%(!.#.${symbol_prompt_nl})%{$reset_color%}'
 
-local git_info='$(git_prompt_info)$(git_remote_status)'
-
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[red]%}("
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[red]%}) %{$fg[yellow]%}${symbol_git_dirty}%{$reset_color%}"
@@ -39,16 +37,18 @@ ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg_bold[magenta]%}${symbol_git_diverged
 ZSH_THEME_TERM_TAB_TITLE_IDLE="%n@%m:%~"
 
 function set_prompt() {
-    local path_length=${#${(%):-%~}}
+	local path_length=${#${(%):-%~}}
+	local git_info='$(git_prompt_info)$(git_remote_status)'
 
-
-    if (( path_length > ${PROMPT_PATH_LIMIT:-60} )); then
-        PROMPT="${userhost} ${working_dir} ${git_info}
+	if (( path_length > ${PROMPT_PATH_LIMIT:-60} )); then
+		PROMPT="${userhost} ${working_dir} ${git_info}
 ${user_symbol_nl} "
-    else
-        PROMPT="${userhost} ${working_dir} ${git_info}${user_symbol} "
-    fi
+	else
+		PROMPT="${userhost} ${working_dir} ${git_info}${user_symbol} "
+	fi
 }
 
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd set_prompt
+
+set_prompt
