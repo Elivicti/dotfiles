@@ -102,6 +102,56 @@ function Set-MSVC-Env {
 	}
 }
 
+function Sync-GitRepo {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory = $true)]
+		[string] $Path,
+		[Parameter()]
+		[switch] $Quiet,
+
+		[Parameter()]
+		[switch] $Fetch,
+		[Parameter()]
+		[switch] $NoPull,
+		[Parameter()]
+		[switch] $Status
+	)
+
+	if (-not $(Test-Path -PathType Container $Path)) {
+		Write-Error "${Path}: path is not a directory"
+		return
+	}
+
+	if (-not $Quiet) { Write-Output "[INFO] Directory: $Path" }
+
+	if ($Fetch) {
+		if (-not $Quiet) { Write-Output "[INFO] Running: git fetch" }
+		pwsh -WorkingDirectory "$Path" -NoProfile -c "git fetch"
+
+		if ($LASTEXITCODE -ne 0) { return; }
+	}
+
+	if (-not $NoPull) {
+		if (-not $Quiet) { Write-Output "[INFO] Running: git pull" }
+		pwsh -WorkingDirectory "$Path" -NoProfile -c "git pull"
+	}
+
+	if ($Status) {
+		if (-not $Quiet) { Write-Output "[INFO] Running: git status" }
+		pwsh -WorkingDirectory "$Path" -NoProfile -c "git status"
+	}
+}
+
+function vcpkg-update {
+	param (
+		[Parameter()]
+		[switch] $NoPull
+	)
+	$vcpkg_root = $(Get-Command-Directory vcpkg).Path
+	Sync-GitRepo $vcpkg_root -Fetch -Status -NoPull:$NoPull
+}
+
 function Make-Hidden {
 	[CmdletBinding()]
 	param(
