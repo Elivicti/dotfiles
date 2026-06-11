@@ -37,6 +37,7 @@ ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg_bold[magenta]%}${symbol_git_diverged
 ZSH_THEME_TERM_TAB_TITLE_IDLE="%n@%m:%~"
 
 function set_prompt() {
+	echo -n "\x1b[0 q"
 	local path_length=${#${(%):-%~}}
 	local git_info='$(git_prompt_info)$(git_remote_status)'
 
