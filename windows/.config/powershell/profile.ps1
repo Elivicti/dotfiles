@@ -14,3 +14,16 @@ $env:NVIM_USING_BIG_ICON_FONT = "1"
 # starship currently lacks support for conditional prompt parts
 $theme_manager = "starship"
 Import-Module "$PSScriptRoot\themes\$theme_manager\setup.ps1"
+
+function Restore-Cursor-Shape {
+	Write-Host "`e[0 q" -NoNewline
+}
+
+$promptFunc = $function:prompt
+
+function prompt {
+	if (-not $DEBUG_NO_RESTOR_CURSOR_SHAPE) {
+		Restore-Cursor-Shape
+	}
+	& $promptFunc
+}
