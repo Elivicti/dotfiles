@@ -102,6 +102,21 @@ export LANG=en_US.UTF-8
 alias ll="ls -lhF --group-directories-first --color"
 alias lla="ls -lahF --group-directories-first --color"
 
+function yazi-ls() {
+	if ! command -v yazi >/dev/null 2>&1; then
+		echo "command not found: yazi" >&2
+		return 1
+	fi
+
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+	echo -n "\x1b[ q"
+}
+alias yz="yazi-ls"
+
 # custom sources
 source "$HOME/.user-env.sh"
 

@@ -15,6 +15,8 @@ $env:NVIM_USING_BIG_ICON_FONT = "1"
 $theme_manager = "starship"
 Import-Module "$PSScriptRoot\themes\$theme_manager\setup.ps1"
 
+Import-Module "$PSScriptRoot\sources\alias.ps1"
+
 function Restore-Cursor-Shape {
 	Write-Host "`e[0 q" -NoNewline
 }
