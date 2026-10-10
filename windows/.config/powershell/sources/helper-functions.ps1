@@ -66,6 +66,24 @@ function Set-Light-Theme {
 
 }
 
+function Get-CodePage {
+    [CmdletBinding()]
+    param()
+
+	$items = [ordered]@{
+		Input  = [Console]::InputEncoding
+		Output = [Console]::OutputEncoding
+	}
+
+	foreach ($kv in $items.GetEnumerator()) {
+		[PSCustomObject]@{
+			Type     = $kv.Key
+			Name     = $kv.Value.EncodingName
+			WebName  = $kv.Value.WebName
+			Encoding = $kv.Value
+		}
+	}
+}
 function Set-CodePage {
 	[CmdletBinding()]
 	param (
