@@ -291,3 +291,126 @@ function Make-Shown {
 		Write-Output "$path"
 	}
 }
+
+function Open-WithExplorer {
+	<#
+	.SYNOPSIS
+		Opens a path in Windows Explorer (explorer.exe).
+
+	.DESCRIPTION
+		Behavior:
+		  - A [file]        -> Opens its containing folder and selects the file (-Select is ignored).
+		  - A [directory]   -> Opens the directory directly by default.
+		  - A [directory] + -Select -> Opens the parent folder and selects the directory.
+		  - A missing path  -> Writes an error and does NOT launch explorer.
+		  - Supports: relative paths, UNC paths, environment variables, shell: namespace,
+					  file:// URIs, pipeline input, and empty path (current directory).
+
+	.PARAMETER Path
+		The path to open. Accepts pipeline input.
+
+	.PARAMETER Select
+		Only meaningful for directories. When set, opens the parent folder and selects
+		the directory instead of opening it. Ignored for files (files are always selected).
+
+	.PARAMETER PassThru
+		Returns the argument(s) actually passed to explorer.exe. Useful for debugging.
+
+	.EXAMPLE
+		Open-WithExplorer .
+		Open-WithExplorer "$env:USERPROFILE\Desktop"
+		Open-WithExplorer "C:\Windows" -Select         # select Windows inside C:\
+		Open-WithExplorer "C:\Windows\notepad.exe"     # select notepad.exe
+		Open-WithExplorer "shell:MyComputer"
+		Open-WithExplorer "\\server\share\folder"
+		Open-WithExplorer "C:\path\does\not\exist"     # errors out, no explorer
+	#>
+	[CmdletBinding()]
+	[OutputType([void], [string])]
+	param(
+		[Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+		[Alias('FullName', 'LiteralPath', 'PSPath')]
+		[string] $Path,
+
+		[switch] $Select,
+
+		[switch] $PassThru
+	)
+
+	process {
+		$arg    = $null   # path handed to explorer.exe
+		$isFile = $false
+
+		if ([string]::IsNullOrWhiteSpace($Path) -or $Path -eq '.' -or $Path -eq '.\') {
+			# Empty or "." means current directory.
+			$arg = (Get-Location).ProviderPath
+		}
+		elseif ($Path -match '^shell:') {
+			# shell: namespace (e.g. shell:MyComputer). Test-Path is unreliable here,
+			# so skip the existence check and pass it through as-is.
+			$arg = $Path
+		}
+		elseif ($Path -match '^file://') {
+			# Convert file:// URI to a local path, then validate.
+			try {
+				$localPath = ([uri]$Path).LocalPath
+			}
+			catch {
+				Write-Error "Cannot parse file URI: $Path"
+				return
+			}
+			if (-not (Test-Path -LiteralPath $localPath)) {
+				Write-Error "Path does not exist: $Path"
+				return
+			}
+			$arg = $localPath
+		}
+		else {
+			# Expand %VAR% style environment variables.
+			$expanded = [Environment]::ExpandEnvironmentVariables($Path)
+
+			# Bail out early if the path does not exist; do not launch explorer.
+			if (-not (Test-Path -LiteralPath $expanded)) {
+				Write-Error "Path does not exist: $Path"
+				return
+			}
+
+			# -LiteralPath avoids wildcard interpretation of characters like [ ].
+			$resolved = Resolve-Path -LiteralPath $expanded -ErrorAction Stop
+
+			if ($resolved.Provider.Name -ne 'FileSystem') {
+				# Non-filesystem provider (e.g. registry). Use PSPath.
+				$arg = $resolved.PSPath
+			}
+			else {
+				$arg    = $resolved.ProviderPath
+				$isFile = (Get-Item -LiteralPath $arg -ErrorAction Stop).PSIsContainer -eq $false
+			}
+		}
+
+		# The shell: namespace does not accept /select.
+		$needSelect = $false
+		if ($arg -notmatch '^shell:') {
+			if ($isFile) {
+				# File -> always select; -Select is ignored.
+				$needSelect = $true
+			}
+			elseif ($Select) {
+				# Directory + -Select -> select inside the parent folder.
+				$needSelect = $true
+			}
+			# Directory without -Select -> open it directly.
+		}
+
+		if ($needSelect) {
+			# /select, and the path must be glued into one argument; quoting is handled here.
+			$arguments = "/select,`"$arg`""
+			if ($PassThru) { $arguments }
+			Start-Process -FilePath 'explorer.exe' -ArgumentList $arguments -ErrorAction Stop
+		}
+		else {
+			if ($PassThru) { $arg }
+			Start-Process -FilePath 'explorer.exe' -ArgumentList $arg -ErrorAction Stop
+		}
+	}
+}
