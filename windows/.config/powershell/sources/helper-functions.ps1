@@ -101,23 +101,114 @@ function Set-CodePage {
 	Write-Output "Set I/O encoding to $name" $codepage
 }
 
-function Set-MSVC-Env {
+function Find-MSVC-Instance {
 	[CmdletBinding()]
-	param (
+	param(
+		[Parameter(Mandatory=$false)]
+		[string] $InstallerRoot = "${env:PROGRAMFILES(X86)}\Microsoft Visual Studio\Installer",
+
+		[Parameter(Mandatory=$false)]
+		[string] $InstanceId,
+
 		[Parameter()]
-		[switch] $Utf8 = $false
+		[switch] $FullOutput = $false
 	)
 
-	$devshell = "$env:VS_ROOT\Common7\Tools\Launch-VsDevShell.ps1"
-	if (-not $(Test-Path -PathType Leaf $devshell)) {
-		Write-Error "$devshell does not exist"
-		return
-	}
-	& $devshell -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
+	$vswhere = "$InstallerRoot\vswhere.exe"
+	$vswhere_exist = Test-Path -LiteralPath "$vswhere" -PathType Leaf
 
-	if ($Utf8) {
-		Set-CodePage "utf-8"
+	if (-not $vswhere_exist) {
+		throw [System.IO.FileNotFoundException]::new("Unable to find 'vswhere.exe' under '$InstallerRoot'")
 	}
+
+	$vswhere_args = @("-format", "json", "-nocolor", "-nologo")
+	if ($InstanceId -ieq "latest") {
+		$vswhere_args += "-latest"
+	}
+
+	$json = & "$vswhere" @vswhere_args | ConvertFrom-Json
+
+	if (-not $json) {
+		throw "No Visual Studio instances found."
+	}
+
+	if ($InstanceId -and $InstanceId -ine "latest") {
+		$json = $json | Where-Object { $_.instanceId -eq $InstanceId }
+		if (-not $json) {
+			throw "Visual Studio instance with InstanceId '$InstanceId' not found."
+		}
+	}
+
+	if (-not $FullOutput) {
+		$json = $json | ForEach-Object {
+			[PSCustomObject]@{
+				InstanceId       = $_.instanceId
+				DisplayName      = $_.displayName
+				Description      = $_.description
+				InstallationPath = $_.installationPath
+			}
+		}
+	}
+
+	return $json
+}
+
+function Set-MSVC-Env {
+	[CmdletBinding()]
+	param(
+		[Parameter(Mandatory=$false)]
+		[string] $InstanceId
+	)
+
+	$devshellScript = "Common7\Tools\Launch-VsDevShell.ps1"
+	$vs_root = $null
+
+	function Test-VSRoot {
+		param([string]$Path)
+		if ($Path) {
+			$devshell = Join-Path $Path $devshellScript
+			if (Test-Path -LiteralPath $devshell -PathType Leaf) {
+				return $true
+			}
+		}
+		return $false
+	}
+
+	# Step 1: Try InstanceId if specified
+	if ($InstanceId) {
+		$instance = Find-MSVC-Instance -InstanceId $InstanceId -ErrorAction SilentlyContinue
+		if ($instance) {
+			$vs_root = $instance.InstallationPath
+		}
+		else {
+			Write-Host "ERROR: Invalid instance id '$InstanceId', falling back to env:VS_ROOT." -ForegroundColor Red
+		}
+	}
+
+	# Step 2: Fallback to VS_ROOT
+	if (-not $vs_root -and $env:VS_ROOT) {
+		if (Test-VSRoot $env:VS_ROOT) {
+			$vs_root = $env:VS_ROOT
+		}
+		else {
+			Write-Host "ERROR: Invalid env:VS_ROOT '$env:VS_ROOT', falling back to latest." -ForegroundColor Red
+		}
+	}
+
+	# Step 3: Fallback to latest
+	if (-not $vs_root) {
+		$instance = Find-MSVC-Instance -InstanceId "latest" -ErrorAction SilentlyContinue
+		if ($instance) {
+			$vs_root = $instance.InstallationPath
+		}
+	}
+
+	if (-not $vs_root -or -not (Test-VSRoot $vs_root)) {
+		throw "Unable to locate Visual Studio installation."
+	}
+
+	$devshell = Join-Path $vs_root $devshellScript
+	& $devshell -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
 }
 
 function Sync-GitRepo {
